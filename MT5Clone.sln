@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MT5Clone.Charting", "src\MT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MT5Clone.Strategy", "src\MT5Clone.Strategy\MT5Clone.Strategy.csproj", "{F6A7B8C9-D0E1-2345-FABC-456789012345}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MT5Clone.OpenAlgo", "src\MT5Clone.OpenAlgo\MT5Clone.OpenAlgo.csproj", "{B8C9D0E1-F2A3-4567-BCDE-678901234567}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MT5Clone.App", "src\MT5Clone.App\MT5Clone.App.csproj", "{A7B8C9D0-E1F2-3456-ABCD-567890123456}"
 EndProject
 Global
@@ -51,5 +53,9 @@ Global
 		{A7B8C9D0-E1F2-3456-ABCD-567890123456}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7B8C9D0-E1F2-3456-ABCD-567890123456}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7B8C9D0-E1F2-3456-ABCD-567890123456}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8C9D0E1-F2A3-4567-BCDE-678901234567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8C9D0E1-F2A3-4567-BCDE-678901234567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8C9D0E1-F2A3-4567-BCDE-678901234567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8C9D0E1-F2A3-4567-BCDE-678901234567}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

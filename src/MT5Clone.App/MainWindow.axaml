@@ -73,6 +73,9 @@
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem Header="New _Order" Command="{Binding NewOrderCommand}" />
+                <Separator />
+                <MenuItem Header="_OpenAlgo Connection..." Command="{Binding ShowConnectionDialogCommand}" />
+                <MenuItem Header="_Disconnect OpenAlgo" Command="{Binding DisconnectOpenAlgoCommand}" />
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="_About" />
@@ -89,6 +92,8 @@
                 <Button Classes="toolbar" Content="Term" Command="{Binding ToggleTerminalCommand}" ToolTip.Tip="Terminal" />
                 <Border Width="1" Background="#3F3F46" Margin="2,2" />
                 <Button Classes="toolbar" Content="Order" Command="{Binding NewOrderCommand}" ToolTip.Tip="New Order (F9)" FontWeight="Bold" />
+                <Border Width="1" Background="#3F3F46" Margin="2,2" />
+                <Button Classes="toolbar" Content="OpenAlgo" Command="{Binding ShowConnectionDialogCommand}" ToolTip.Tip="Connect to OpenAlgo" FontWeight="Bold" Foreground="#4EC9B0" />
                 <Border Width="1" Background="#3F3F46" Margin="4,2" />
                 <Button Classes="toolbar" Content="Bar" Command="{Binding ChartTypeBarsCommand}" ToolTip.Tip="Bar Chart" />
                 <Button Classes="toolbar" Content="Cndl" Command="{Binding ChartTypeCandlesCommand}" ToolTip.Tip="Candlestick" />
@@ -131,24 +136,79 @@
         </Border>
 
         <!-- Main Content Area -->
-        <Grid ColumnDefinitions="250,4,*">
-            <!-- Left Panel: Market Watch + Navigator -->
-            <Grid Grid.Column="0" RowDefinitions="*,4,Auto" IsVisible="{Binding MarketWatch.IsVisible}">
-                <views:MarketWatchView Grid.Row="0" DataContext="{Binding MarketWatch}" />
-                <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="#3F3F46" />
-                <views:NavigatorView Grid.Row="2" Height="280" DataContext="{Binding Navigator}"
-                                     IsVisible="{Binding IsVisible}" />
+        <Panel>
+            <Grid ColumnDefinitions="250,4,*">
+                <!-- Left Panel: Market Watch + Navigator -->
+                <Grid Grid.Column="0" RowDefinitions="*,4,Auto" IsVisible="{Binding MarketWatch.IsVisible}">
+                    <views:MarketWatchView Grid.Row="0" DataContext="{Binding MarketWatch}" />
+                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="#3F3F46" />
+                    <views:NavigatorView Grid.Row="2" Height="280" DataContext="{Binding Navigator}"
+                                         IsVisible="{Binding IsVisible}" />
+                </Grid>
+
+                <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="#3F3F46" />
+
+                <!-- Right: Chart + Terminal -->
+                <Grid Grid.Column="2" RowDefinitions="*,4,250">
+                    <views:ChartView Grid.Row="0" DataContext="{Binding Chart}" />
+                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="#3F3F46" />
+                    <views:TerminalView Grid.Row="2" DataContext="{Binding Terminal}"
+                                        IsVisible="{Binding IsVisible}" />
+                </Grid>
             </Grid>
 
-            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="#3F3F46" />
+            <!-- OpenAlgo Connection Dialog Overlay -->
+            <Border IsVisible="{Binding ShowConnectionDialog}"
+                    Background="#80000000"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Border Background="#2D2D30" BorderBrush="#4EC9B0" BorderThickness="2"
+                        CornerRadius="8" Padding="24"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Width="420" MaxHeight="500">
+                    <StackPanel>
+                        <TextBlock Text="OpenAlgo Connection" FontSize="18" FontWeight="Bold"
+                                   Foreground="#4EC9B0" Margin="0,0,0,4" />
+                        <TextBlock Text="Connect to Indian brokers via OpenAlgo API"
+                                   Foreground="#808080" FontSize="12" Margin="0,0,0,16" />
 
-            <!-- Right: Chart + Terminal -->
-            <Grid Grid.Column="2" RowDefinitions="*,4,250">
-                <views:ChartView Grid.Row="0" DataContext="{Binding Chart}" />
-                <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="#3F3F46" />
-                <views:TerminalView Grid.Row="2" DataContext="{Binding Terminal}"
-                                    IsVisible="{Binding IsVisible}" />
-            </Grid>
-        </Grid>
+                        <!-- Server URL -->
+                        <TextBlock Text="Server URL" Foreground="#C0C0C0" FontSize="12" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding OpenAlgoHost}" Watermark="http://127.0.0.1:5000"
+                                 Margin="0,0,0,12" />
+
+                        <!-- API Key -->
+                        <TextBlock Text="API Key" Foreground="#C0C0C0" FontSize="12" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding OpenAlgoApiKey}" Watermark="Enter your OpenAlgo API key"
+                                 PasswordChar="*" Margin="0,0,0,12" />
+
+                        <!-- Strategy Name -->
+                        <TextBlock Text="Strategy Name" Foreground="#C0C0C0" FontSize="12" Margin="0,0,0,4" />
+                        <TextBox Text="{Binding OpenAlgoStrategy}" Watermark="MT5Clone"
+                                 Margin="0,0,0,16" />
+
+                        <!-- Info -->
+                        <Border Background="#1A1A2E" CornerRadius="4" Padding="12,8" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Supported Brokers:" Foreground="#4EC9B0" FontSize="11" FontWeight="Bold" />
+                                <TextBlock Text="Zerodha, Upstox, Fyers, AngelOne, Shoonya, Dhan, IIFL, Kotak Neo, 5paisa, Flattrade, and 20+ more"
+                                           Foreground="#808080" FontSize="10" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                <TextBlock Text="Asset Types: Equities, F&amp;O, Commodities, Currency"
+                                           Foreground="#808080" FontSize="10" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Buttons -->
+                        <Grid ColumnDefinitions="*,*">
+                            <Button Grid.Column="0" Content="Connect" Command="{Binding ConnectOpenAlgoCommand}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                    Margin="0,0,6,0" Background="#4EC9B0" Foreground="Black" FontWeight="Bold" />
+                            <Button Grid.Column="1" Content="Cancel" Command="{Binding HideConnectionDialogCommand}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                    Margin="6,0,0,0" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Border>
+        </Panel>
     </DockPanel>
 </Window>

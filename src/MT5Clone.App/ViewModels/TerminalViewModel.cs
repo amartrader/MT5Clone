@@ -6,6 +6,7 @@ using MT5Clone.Core.Interfaces;
 using MT5Clone.Core.Models;
 using MT5Clone.MarketData.Services;
 using MT5Clone.Trading.Services;
+using MT5Clone.OpenAlgo.Services;
 
 namespace MT5Clone.App.ViewModels;
 
@@ -14,12 +15,68 @@ public class TradeLogEntry : ViewModelBase
     public DateTime Time { get; set; }
     public string Message { get; set; } = string.Empty;
     public string Level { get; set; } = "Info";
+    public string Source { get; set; } = "System";
+}
+
+public class JournalEntry : ViewModelBase
+{
+    public DateTime Time { get; set; }
+    public string Source { get; set; } = "System";
+    public string Message { get; set; } = string.Empty;
+}
+
+public class AlertEntry : ViewModelBase
+{
+    public DateTime Time { get; set; }
+    public string Symbol { get; set; } = string.Empty;
+    public string Condition { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
+    public string Status { get; set; } = "Active";
+}
+
+public class ExposureEntry : ViewModelBase
+{
+    public string Asset { get; set; } = string.Empty;
+    public double Volume { get; set; }
+    public double Rate { get; set; }
+    public double ValueUSD { get; set; }
+    public double Percentage { get; set; }
+}
+
+public class HistoryEntry : ViewModelBase
+{
+    public DateTime Time { get; set; }
+    public string Symbol { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public double Volume { get; set; }
+    public double Price { get; set; }
+    public double Profit { get; set; }
+    public string Comment { get; set; } = string.Empty;
+}
+
+public class OpenPositionEntry : ViewModelBase
+{
+    private double _currentPrice;
+    private double _profit;
+
+    public string Symbol { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public double Volume { get; set; }
+    public double OpenPrice { get; set; }
+    public double CurrentPrice { get => _currentPrice; set => SetProperty(ref _currentPrice, value); }
+    public double StopLoss { get; set; }
+    public double TakeProfit { get; set; }
+    public double Profit { get => _profit; set => SetProperty(ref _profit, value); }
+    public double Swap { get; set; }
+    public long Ticket { get; set; }
 }
 
 public class TerminalViewModel : ViewModelBase
 {
     private readonly TradingEngine _tradingEngine;
     private readonly MarketDataService _marketDataService;
+    private readonly OpenAlgoService _openAlgoService;
+    private bool _isOpenAlgoMode;
     private bool _isVisible = true;
     private int _selectedTab;
     private bool _isOrderDialogOpen;
@@ -31,13 +88,15 @@ public class TerminalViewModel : ViewModelBase
     private double _orderTakeProfit;
     private string _orderComment = string.Empty;
 
-    public ObservableCollection<Position> OpenPositions { get; } = new();
+    public ObservableCollection<OpenPositionEntry> OpenPositions { get; } = new();
     public ObservableCollection<Order> PendingOrders { get; } = new();
-    public ObservableCollection<Deal> TradeHistory { get; } = new();
+    public ObservableCollection<HistoryEntry> TradeHistory { get; } = new();
     public ObservableCollection<Order> OrderHistory { get; } = new();
     public ObservableCollection<TradeLogEntry> TradeLog { get; } = new();
-    public ObservableCollection<TradeLogEntry> JournalLog { get; } = new();
+    public ObservableCollection<JournalEntry> JournalEntries { get; } = new();
     public ObservableCollection<TradeLogEntry> ExpertLog { get; } = new();
+    public ObservableCollection<AlertEntry> Alerts { get; } = new();
+    public ObservableCollection<ExposureEntry> ExposureData { get; } = new();
     public ObservableCollection<Core.Events.MailMessage> Mailbox { get; } = new();
 
     // Account summary
@@ -81,10 +140,11 @@ public class TerminalViewModel : ViewModelBase
     public ICommand CloseOrderDialogCommand { get; }
     public ICommand SubmitOrderCommand { get; }
 
-    public TerminalViewModel(TradingEngine tradingEngine, MarketDataService marketDataService)
+    public TerminalViewModel(TradingEngine tradingEngine, MarketDataService marketDataService, OpenAlgoService openAlgoService)
     {
         _tradingEngine = tradingEngine;
         _marketDataService = marketDataService;
+        _openAlgoService = openAlgoService;
 
         PlaceBuyCommand = new RelayCommand(() => ExecuteMarketOrder(OrderType.Buy));
         PlaceSellCommand = new RelayCommand(() => ExecuteMarketOrder(OrderType.Sell));
@@ -112,15 +172,78 @@ public class TerminalViewModel : ViewModelBase
         _tradingEngine.AccountUpdated += (s, e) => UpdateAccountInfo(e.Account);
 
         UpdateAccountInfo(_tradingEngine.GetAccount());
+
+        AddJournalEntry("Terminal initialized");
     }
+
+    public void SwitchToOpenAlgo()
+    {
+        _isOpenAlgoMode = true;
+        AddJournalEntry("Switched to OpenAlgo live trading mode");
+
+        // Wire up OpenAlgo trading events
+        if (_openAlgoService.Trading != null)
+        {
+            _openAlgoService.Trading.PositionOpened += (s, e) => RefreshPositions();
+            _openAlgoService.Trading.PositionClosed += (s, e) => RefreshPositions();
+            _openAlgoService.Trading.PositionModified += (s, e) => RefreshPositions();
+            _openAlgoService.Trading.OrderPlaced += (s, e) => RefreshOrders();
+            _openAlgoService.Trading.OrderCanceled += (s, e) => RefreshOrders();
+            _openAlgoService.Trading.OrderFilled += (s, e) => { RefreshOrders(); RefreshHistory(); };
+            _openAlgoService.Trading.DealExecuted += (s, e) => RefreshHistory();
+            _openAlgoService.Trading.AccountUpdated += (s, e) => UpdateAccountInfo(e.Account);
+
+            UpdateAccountInfo(_openAlgoService.Trading.GetAccount());
+        }
+
+        RefreshPositions();
+        RefreshOrders();
+    }
+
+    public void SwitchToSimulated()
+    {
+        _isOpenAlgoMode = false;
+        AddJournalEntry("Switched to simulated trading mode");
+
+        RefreshPositions();
+        RefreshOrders();
+        UpdateAccountInfo(_tradingEngine.GetAccount());
+    }
+
+    public void AddJournalEntry(string message)
+    {
+        JournalEntries.Insert(0, new JournalEntry
+        {
+            Time = DateTime.UtcNow,
+            Source = _isOpenAlgoMode ? "OpenAlgo" : "System",
+            Message = message
+        });
+    }
+
+    private ITradingEngine ActiveEngine =>
+        _isOpenAlgoMode && _openAlgoService.Trading != null
+            ? _openAlgoService.Trading
+            : _tradingEngine;
 
     public void ShowOrderDialog(string symbol)
     {
         OrderSymbol = symbol;
-        var symbolInfo = _marketDataService.GetSymbol(symbol);
-        if (symbolInfo != null)
+
+        if (_isOpenAlgoMode && _openAlgoService.MarketData != null)
         {
-            OrderPrice = symbolInfo.Bid;
+            var symbolInfo = _openAlgoService.MarketData.GetSymbol(symbol);
+            if (symbolInfo != null)
+            {
+                OrderPrice = symbolInfo.Bid;
+            }
+        }
+        else
+        {
+            var symbolInfo = _marketDataService.GetSymbol(symbol);
+            if (symbolInfo != null)
+            {
+                OrderPrice = symbolInfo.Bid;
+            }
         }
         IsOrderDialogOpen = true;
     }
@@ -138,8 +261,9 @@ public class TerminalViewModel : ViewModelBase
             Comment = OrderComment
         };
 
-        var result = _tradingEngine.SendOrder(request);
+        var result = ActiveEngine.SendOrder(request);
         LogTrade(result, orderType.ToString());
+        AddJournalEntry($"Market order {orderType}: {OrderSymbol} x{OrderVolume} - {(result.Success ? "Success" : "Failed: " + result.Comment)}");
     }
 
     private void ExecutePendingOrder(OrderType orderType)
@@ -156,8 +280,9 @@ public class TerminalViewModel : ViewModelBase
             Comment = OrderComment
         };
 
-        var result = _tradingEngine.SendOrder(request);
+        var result = ActiveEngine.SendOrder(request);
         LogTrade(result, orderType.ToString());
+        AddJournalEntry($"Pending order {orderType}: {OrderSymbol} @ {OrderPrice} x{OrderVolume} - {(result.Success ? "Success" : "Failed: " + result.Comment)}");
     }
 
     private void SubmitOrder()
@@ -173,60 +298,90 @@ public class TerminalViewModel : ViewModelBase
     private void ClosePosition(Position? position)
     {
         if (position == null) return;
-        var result = _tradingEngine.ClosePosition(position.Ticket);
+        var result = ActiveEngine.ClosePosition(position.Ticket);
         LogTrade(result, "Close Position");
+        AddJournalEntry($"Close position {position.Symbol} - {(result.Success ? "Success" : "Failed: " + result.Comment)}");
     }
 
     private void CloseAllPositions()
     {
-        _tradingEngine.CloseAllPositions();
+        ActiveEngine.CloseAllPositions();
         RefreshPositions();
+        AddJournalEntry("Close all positions requested");
     }
 
     private void ModifyPosition(Position? position)
     {
         if (position == null) return;
-        _tradingEngine.ModifyPosition(position.Ticket, OrderStopLoss, OrderTakeProfit);
+        ActiveEngine.ModifyPosition(position.Ticket, OrderStopLoss, OrderTakeProfit);
+        AddJournalEntry($"Modify position {position.Symbol}: SL={OrderStopLoss}, TP={OrderTakeProfit}");
     }
 
     private void CancelOrder(Order? order)
     {
         if (order == null) return;
-        _tradingEngine.CancelOrder(order.Ticket);
+        ActiveEngine.CancelOrder(order.Ticket);
+        AddJournalEntry($"Cancel order #{order.Ticket} {order.Symbol}");
     }
 
     private void CancelAllOrders()
     {
-        foreach (var order in _tradingEngine.GetPendingOrders().ToList())
+        foreach (var order in ActiveEngine.GetPendingOrders().ToList())
         {
-            _tradingEngine.CancelOrder(order.Ticket);
+            ActiveEngine.CancelOrder(order.Ticket);
         }
         RefreshOrders();
+        AddJournalEntry("Cancel all orders requested");
     }
 
     private void RefreshPositions()
     {
         OpenPositions.Clear();
-        foreach (var pos in _tradingEngine.GetOpenPositions())
-            OpenPositions.Add(pos);
+        foreach (var pos in ActiveEngine.GetOpenPositions())
+        {
+            OpenPositions.Add(new OpenPositionEntry
+            {
+                Symbol = pos.Symbol,
+                Type = pos.Type.ToString(),
+                Volume = pos.Volume,
+                OpenPrice = pos.PriceOpen,
+                CurrentPrice = pos.PriceCurrent,
+                StopLoss = pos.StopLoss,
+                TakeProfit = pos.TakeProfit,
+                Profit = pos.Profit,
+                Swap = pos.Swap,
+                Ticket = pos.Ticket
+            });
+        }
     }
 
     private void RefreshOrders()
     {
         PendingOrders.Clear();
-        foreach (var order in _tradingEngine.GetPendingOrders())
+        foreach (var order in ActiveEngine.GetPendingOrders())
             PendingOrders.Add(order);
     }
 
     private void RefreshHistory()
     {
         TradeHistory.Clear();
-        var deals = _tradingEngine.GetDeals(DateTime.UtcNow.AddYears(-1), DateTime.UtcNow);
+        var deals = ActiveEngine.GetDeals(DateTime.UtcNow.AddYears(-1), DateTime.UtcNow);
         foreach (var deal in deals)
-            TradeHistory.Add(deal);
+        {
+            TradeHistory.Add(new HistoryEntry
+            {
+                Time = deal.Time,
+                Symbol = deal.Symbol,
+                Type = deal.Type.ToString(),
+                Volume = deal.Volume,
+                Price = deal.Price,
+                Profit = deal.Profit,
+                Comment = deal.Comment
+            });
+        }
 
         OrderHistory.Clear();
-        var orders = _tradingEngine.GetOrderHistory(DateTime.UtcNow.AddYears(-1), DateTime.UtcNow);
+        var orders = ActiveEngine.GetOrderHistory(DateTime.UtcNow.AddYears(-1), DateTime.UtcNow);
         foreach (var order in orders)
             OrderHistory.Add(order);
     }

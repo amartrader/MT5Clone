@@ -6,6 +6,8 @@ using MT5Clone.Core.Interfaces;
 using MT5Clone.Core.Models;
 using MT5Clone.MarketData.Services;
 using MT5Clone.Trading.Services;
+using MT5Clone.OpenAlgo.Models;
+using MT5Clone.OpenAlgo.Services;
 
 namespace MT5Clone.App.ViewModels;
 
@@ -14,17 +16,25 @@ public class MainViewModel : ViewModelBase
     private readonly MarketDataService _marketDataService;
     private readonly TradingEngine _tradingEngine;
     private readonly AlertService _alertService;
+    private readonly OpenAlgoService _openAlgoService;
 
     private string _title = "MT5Clone Terminal";
     private string _statusText = "Disconnected";
     private string _connectionStatus = "Disconnected";
     private bool _isConnected;
+    private bool _isOpenAlgoMode;
+    private bool _isOpenAlgoConnected;
+    private string _openAlgoHost = "http://127.0.0.1:5000";
+    private string _openAlgoApiKey = string.Empty;
+    private string _openAlgoStrategy = "MT5Clone";
+    private bool _showConnectionDialog;
 
     public MarketWatchViewModel MarketWatch { get; }
     public ChartViewModel Chart { get; }
     public TerminalViewModel Terminal { get; }
     public NavigatorViewModel Navigator { get; }
     public ToolboxViewModel Toolbox { get; }
+    public OpenAlgoService OpenAlgo => _openAlgoService;
 
     public string Title
     {
@@ -50,6 +60,42 @@ public class MainViewModel : ViewModelBase
         set => SetProperty(ref _isConnected, value);
     }
 
+    public bool IsOpenAlgoMode
+    {
+        get => _isOpenAlgoMode;
+        set => SetProperty(ref _isOpenAlgoMode, value);
+    }
+
+    public bool IsOpenAlgoConnected
+    {
+        get => _isOpenAlgoConnected;
+        set => SetProperty(ref _isOpenAlgoConnected, value);
+    }
+
+    public string OpenAlgoHost
+    {
+        get => _openAlgoHost;
+        set => SetProperty(ref _openAlgoHost, value);
+    }
+
+    public string OpenAlgoApiKey
+    {
+        get => _openAlgoApiKey;
+        set => SetProperty(ref _openAlgoApiKey, value);
+    }
+
+    public string OpenAlgoStrategy
+    {
+        get => _openAlgoStrategy;
+        set => SetProperty(ref _openAlgoStrategy, value);
+    }
+
+    public bool ShowConnectionDialog
+    {
+        get => _showConnectionDialog;
+        set => SetProperty(ref _showConnectionDialog, value);
+    }
+
     // Commands
     public ICommand ConnectCommand { get; }
     public ICommand DisconnectCommand { get; }
@@ -60,6 +106,12 @@ public class MainViewModel : ViewModelBase
     public ICommand ToggleTerminalCommand { get; }
     public ICommand ToggleToolboxCommand { get; }
     public ICommand ExitCommand { get; }
+
+    // OpenAlgo commands
+    public ICommand ConnectOpenAlgoCommand { get; }
+    public ICommand DisconnectOpenAlgoCommand { get; }
+    public ICommand ShowConnectionDialogCommand { get; }
+    public ICommand HideConnectionDialogCommand { get; }
 
     // Timeframe commands
     public ICommand TimeFrameM1Command { get; }
@@ -87,6 +139,7 @@ public class MainViewModel : ViewModelBase
         _marketDataService = new MarketDataService();
         _tradingEngine = new TradingEngine();
         _alertService = new AlertService();
+        _openAlgoService = new OpenAlgoService();
 
         // Register symbols with trading engine
         foreach (var symbol in _marketDataService.GetSymbols())
@@ -101,11 +154,15 @@ public class MainViewModel : ViewModelBase
             _alertService.ProcessTick(e.Tick);
         };
 
+        // Wire up OpenAlgo events
+        _openAlgoService.ConnectionStatusChanged += OnOpenAlgoConnectionStatusChanged;
+        _openAlgoService.LogMessage += OnOpenAlgoLogMessage;
+
         // Create sub view models
-        MarketWatch = new MarketWatchViewModel(_marketDataService);
-        Chart = new ChartViewModel(_marketDataService);
-        Terminal = new TerminalViewModel(_tradingEngine, _marketDataService);
-        Navigator = new NavigatorViewModel();
+        MarketWatch = new MarketWatchViewModel(_marketDataService, _openAlgoService);
+        Chart = new ChartViewModel(_marketDataService, _openAlgoService);
+        Terminal = new TerminalViewModel(_tradingEngine, _marketDataService, _openAlgoService);
+        Navigator = new NavigatorViewModel(_openAlgoService);
         Toolbox = new ToolboxViewModel(_marketDataService);
 
         // Commands
@@ -118,6 +175,12 @@ public class MainViewModel : ViewModelBase
         ToggleTerminalCommand = new RelayCommand(() => Terminal.IsVisible = !Terminal.IsVisible);
         ToggleToolboxCommand = new RelayCommand(() => Toolbox.IsVisible = !Toolbox.IsVisible);
         ExitCommand = new RelayCommand(() => Environment.Exit(0));
+
+        // OpenAlgo commands
+        ConnectOpenAlgoCommand = new RelayCommand(ConnectOpenAlgo);
+        DisconnectOpenAlgoCommand = new RelayCommand(DisconnectOpenAlgo);
+        ShowConnectionDialogCommand = new RelayCommand(() => ShowConnectionDialog = true);
+        HideConnectionDialogCommand = new RelayCommand(() => ShowConnectionDialog = false);
 
         // Timeframe commands
         TimeFrameM1Command = new RelayCommand(() => Chart.SetTimeFrame(TimeFrame.M1));
@@ -165,6 +228,11 @@ public class MainViewModel : ViewModelBase
 
     private async void Disconnect()
     {
+        if (IsOpenAlgoMode)
+        {
+            DisconnectOpenAlgo();
+            return;
+        }
         await _marketDataService.StopAsync();
         IsConnected = false;
         ConnectionStatus = "Disconnected";
@@ -172,14 +240,86 @@ public class MainViewModel : ViewModelBase
         Title = "MT5Clone Terminal";
     }
 
+    private async void ConnectOpenAlgo()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(OpenAlgoApiKey))
+            {
+                StatusText = "Please enter an OpenAlgo API Key";
+                return;
+            }
+
+            StatusText = "Connecting to OpenAlgo...";
+            ConnectionStatus = "Connecting";
+            ShowConnectionDialog = false;
+
+            _openAlgoService.UpdateConfig(OpenAlgoApiKey, OpenAlgoHost, OpenAlgoStrategy);
+
+            var success = await _openAlgoService.ConnectAsync();
+            if (success)
+            {
+                IsOpenAlgoMode = true;
+                IsOpenAlgoConnected = true;
+                IsConnected = true;
+                ConnectionStatus = "OpenAlgo Connected";
+                StatusText = $"Connected to OpenAlgo ({OpenAlgoHost})";
+                Title = $"MT5Clone Terminal - OpenAlgo - {OpenAlgoHost}";
+
+                // Update sub view models to use OpenAlgo data
+                MarketWatch.SwitchToOpenAlgo();
+                Chart.SwitchToOpenAlgo();
+                Terminal.SwitchToOpenAlgo();
+                Navigator.UpdateForOpenAlgo();
+            }
+            else
+            {
+                StatusText = "OpenAlgo connection failed. Check API key and server.";
+                ConnectionStatus = "Failed";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"OpenAlgo connection failed: {ex.Message}";
+            ConnectionStatus = "Failed";
+        }
+    }
+
+    private async void DisconnectOpenAlgo()
+    {
+        await _openAlgoService.DisconnectAsync();
+        IsOpenAlgoMode = false;
+        IsOpenAlgoConnected = false;
+        IsConnected = false;
+        ConnectionStatus = "Disconnected";
+        StatusText = "Disconnected from OpenAlgo";
+        Title = "MT5Clone Terminal";
+
+        MarketWatch.SwitchToSimulated();
+        Chart.SwitchToSimulated();
+        Terminal.SwitchToSimulated();
+    }
+
+    private void OnOpenAlgoConnectionStatusChanged(object? sender, ConnectionStatusEventArgs e)
+    {
+        IsOpenAlgoConnected = e.IsConnected;
+        ConnectionStatus = e.IsConnected ? "OpenAlgo Connected" : e.Message;
+    }
+
+    private void OnOpenAlgoLogMessage(object? sender, string message)
+    {
+        Terminal.AddJournalEntry(message);
+    }
+
     private void OpenNewOrder()
     {
-        Terminal.ShowOrderDialog(MarketWatch.SelectedSymbol?.Name ?? "EURUSD");
+        var symbol = MarketWatch.SelectedSymbol?.Name ?? (IsOpenAlgoMode ? "NSE:RELIANCE" : "EURUSD");
+        Terminal.ShowOrderDialog(symbol);
     }
 
     private void OpenNewChart()
     {
-        var symbol = MarketWatch.SelectedSymbol?.Name ?? "EURUSD";
+        var symbol = MarketWatch.SelectedSymbol?.Name ?? (IsOpenAlgoMode ? "NSE:RELIANCE" : "EURUSD");
         Chart.SetSymbol(symbol);
     }
 }

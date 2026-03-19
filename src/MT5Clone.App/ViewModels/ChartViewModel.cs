@@ -5,12 +5,15 @@ using MT5Clone.Core.Enums;
 using MT5Clone.Core.Interfaces;
 using MT5Clone.Core.Models;
 using MT5Clone.MarketData.Services;
+using MT5Clone.OpenAlgo.Services;
 
 namespace MT5Clone.App.ViewModels;
 
 public class ChartViewModel : ViewModelBase
 {
     private readonly MarketDataService _marketDataService;
+    private readonly OpenAlgoService _openAlgoService;
+    private bool _isOpenAlgoMode;
     private string _symbol = "EURUSD";
     private TimeFrame _timeFrame = TimeFrame.H1;
     private ChartType _chartType = ChartType.Candlestick;
@@ -24,15 +27,79 @@ public class ChartViewModel : ViewModelBase
     private string _ohlcText = string.Empty;
     private string _timeFrameText = "H1";
     private int _digits = 5;
+    private double _currentOpen;
+    private double _currentHigh;
+    private double _currentLow;
+    private double _currentClose;
+    private string _selectedSymbol = "EURUSD";
+    private string _selectedTimeFrame = "H1";
+    private string _chartTypeDisplay = "Candlestick";
+    private string _crosshairInfo = string.Empty;
+    private bool _hasIndicators;
 
     public ObservableCollection<Candle> Candles { get; } = new();
     public ObservableCollection<IIndicator> Indicators { get; } = new();
     public ObservableCollection<IDrawingTool> DrawingTools { get; } = new();
+    public ObservableCollection<IndicatorDisplayItem> ActiveIndicators { get; } = new();
 
     public string Symbol
     {
         get => _symbol;
         set => SetProperty(ref _symbol, value);
+    }
+
+    public string SelectedSymbol
+    {
+        get => _selectedSymbol;
+        set => SetProperty(ref _selectedSymbol, value);
+    }
+
+    public string SelectedTimeFrame
+    {
+        get => _selectedTimeFrame;
+        set => SetProperty(ref _selectedTimeFrame, value);
+    }
+
+    public string ChartTypeDisplay
+    {
+        get => _chartTypeDisplay;
+        set => SetProperty(ref _chartTypeDisplay, value);
+    }
+
+    public double CurrentOpen
+    {
+        get => _currentOpen;
+        set => SetProperty(ref _currentOpen, value);
+    }
+
+    public double CurrentHigh
+    {
+        get => _currentHigh;
+        set => SetProperty(ref _currentHigh, value);
+    }
+
+    public double CurrentLow
+    {
+        get => _currentLow;
+        set => SetProperty(ref _currentLow, value);
+    }
+
+    public double CurrentClose
+    {
+        get => _currentClose;
+        set => SetProperty(ref _currentClose, value);
+    }
+
+    public string CrosshairInfo
+    {
+        get => _crosshairInfo;
+        set => SetProperty(ref _crosshairInfo, value);
+    }
+
+    public bool HasIndicators
+    {
+        get => _hasIndicators;
+        set => SetProperty(ref _hasIndicators, value);
     }
 
     public TimeFrame TimeFrame
@@ -42,6 +109,7 @@ public class ChartViewModel : ViewModelBase
         {
             SetProperty(ref _timeFrame, value);
             TimeFrameText = value.ToString();
+            SelectedTimeFrame = value.ToString();
             LoadCandles();
         }
     }
@@ -49,7 +117,11 @@ public class ChartViewModel : ViewModelBase
     public ChartType ChartType
     {
         get => _chartType;
-        set => SetProperty(ref _chartType, value);
+        set
+        {
+            SetProperty(ref _chartType, value);
+            ChartTypeDisplay = value.ToString();
+        }
     }
 
     public bool AutoScroll
@@ -122,9 +194,10 @@ public class ChartViewModel : ViewModelBase
     public ICommand ChartPropertiesCommand { get; }
     public ICommand RefreshCommand { get; }
 
-    public ChartViewModel(MarketDataService marketDataService)
+    public ChartViewModel(MarketDataService marketDataService, OpenAlgoService openAlgoService)
     {
         _marketDataService = marketDataService;
+        _openAlgoService = openAlgoService;
 
         AddIndicatorCommand = new RelayCommand<string>(AddIndicator);
         RemoveIndicatorCommand = new RelayCommand<IIndicator>(RemoveIndicator);
@@ -139,13 +212,46 @@ public class ChartViewModel : ViewModelBase
         _marketDataService.CandleUpdated += OnCandleUpdated;
     }
 
+    public void SwitchToOpenAlgo()
+    {
+        _isOpenAlgoMode = true;
+        // Load first available OpenAlgo symbol
+        if (_openAlgoService.MarketData != null)
+        {
+            var symbols = _openAlgoService.MarketData.GetSymbols();
+            if (symbols.Count > 0)
+            {
+                SetSymbol(symbols[0].Name);
+            }
+        }
+    }
+
+    public void SwitchToSimulated()
+    {
+        _isOpenAlgoMode = false;
+        SetSymbol("EURUSD");
+    }
+
     public void SetSymbol(string symbol)
     {
         Symbol = symbol;
-        var symbolInfo = _marketDataService.GetSymbol(symbol);
-        if (symbolInfo != null)
+        SelectedSymbol = symbol;
+
+        if (_isOpenAlgoMode && _openAlgoService.MarketData != null)
         {
-            Digits = symbolInfo.Digits;
+            var symbolInfo = _openAlgoService.MarketData.GetSymbol(symbol);
+            if (symbolInfo != null)
+            {
+                Digits = symbolInfo.Digits;
+            }
+        }
+        else
+        {
+            var symbolInfo = _marketDataService.GetSymbol(symbol);
+            if (symbolInfo != null)
+            {
+                Digits = symbolInfo.Digits;
+            }
         }
         LoadCandles();
     }
@@ -175,9 +281,35 @@ public class ChartViewModel : ViewModelBase
         AutoScroll = !AutoScroll;
     }
 
-    private void LoadCandles()
+    private async void LoadCandles()
     {
-        var candles = _marketDataService.GetCandles(Symbol, TimeFrame, 500);
+        List<Candle> candles;
+
+        if (_isOpenAlgoMode && _openAlgoService.MarketData != null)
+        {
+            // Load real historical data from OpenAlgo
+            var endDate = DateTime.UtcNow;
+            var startDate = TimeFrame switch
+            {
+                TimeFrame.M1 or TimeFrame.M2 or TimeFrame.M3 => endDate.AddDays(-2),
+                TimeFrame.M5 or TimeFrame.M6 => endDate.AddDays(-5),
+                TimeFrame.M10 or TimeFrame.M12 or TimeFrame.M15 => endDate.AddDays(-10),
+                TimeFrame.M20 or TimeFrame.M30 => endDate.AddDays(-30),
+                TimeFrame.H1 or TimeFrame.H2 or TimeFrame.H3 => endDate.AddDays(-60),
+                TimeFrame.H4 or TimeFrame.H6 or TimeFrame.H8 or TimeFrame.H12 => endDate.AddDays(-180),
+                TimeFrame.D1 => endDate.AddYears(-2),
+                TimeFrame.W1 => endDate.AddYears(-5),
+                TimeFrame.MN1 => endDate.AddYears(-10),
+                _ => endDate.AddDays(-30)
+            };
+
+            candles = await _openAlgoService.MarketData.LoadHistoryAsync(Symbol, TimeFrame, startDate, endDate);
+        }
+        else
+        {
+            candles = _marketDataService.GetCandles(Symbol, TimeFrame, 500);
+        }
+
         Candles.Clear();
         foreach (var candle in candles)
         {
@@ -195,6 +327,7 @@ public class ChartViewModel : ViewModelBase
 
     private void OnCandleUpdated(object? sender, CandleEventArgs e)
     {
+        if (_isOpenAlgoMode) return;
         if (e.Symbol != Symbol || e.TimeFrame != TimeFrame) return;
 
         if (e.IsNewCandle)
@@ -214,6 +347,10 @@ public class ChartViewModel : ViewModelBase
         if (Candles.Count == 0) return;
 
         var last = Candles[Candles.Count - 1];
+        CurrentOpen = last.Open;
+        CurrentHigh = last.High;
+        CurrentLow = last.Low;
+        CurrentClose = last.Close;
         OHLCText = $"{Symbol} {TimeFrameText}  O:{last.Open.ToString($"F{Digits}")}  H:{last.High.ToString($"F{Digits}")}  L:{last.Low.ToString($"F{Digits}")}  C:{last.Close.ToString($"F{Digits}")}  V:{last.TickVolume}";
     }
 
@@ -242,19 +379,40 @@ public class ChartViewModel : ViewModelBase
 
         if (indicator != null)
         {
-            var candles = _marketDataService.GetCandles(Symbol, TimeFrame, 500);
+            List<Candle> candles;
+            if (_isOpenAlgoMode && _openAlgoService.MarketData != null)
+            {
+                candles = _openAlgoService.MarketData.GetCandles(Symbol, TimeFrame, 500);
+            }
+            else
+            {
+                candles = _marketDataService.GetCandles(Symbol, TimeFrame, 500);
+            }
             indicator.Calculate(candles);
             Indicators.Add(indicator);
+            ActiveIndicators.Add(new IndicatorDisplayItem { Name = indicatorName, Indicator = indicator });
+            HasIndicators = ActiveIndicators.Count > 0;
         }
     }
 
     private void RemoveIndicator(IIndicator? indicator)
     {
         if (indicator != null)
+        {
             Indicators.Remove(indicator);
+            var displayItem = ActiveIndicators.FirstOrDefault(i => i.Indicator == indicator);
+            if (displayItem != null) ActiveIndicators.Remove(displayItem);
+            HasIndicators = ActiveIndicators.Count > 0;
+        }
     }
 
     private void AddDrawingTool(string? toolName) { }
     private void RemoveDrawingTool(IDrawingTool? tool) { }
     private void ShowChartProperties() { }
+}
+
+public class IndicatorDisplayItem : ViewModelBase
+{
+    public string Name { get; set; } = string.Empty;
+    public IIndicator? Indicator { get; set; }
 }
