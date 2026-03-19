@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:MT5Clone.App.Converters"
+             x:Class="MT5Clone.App.Views.EconomicCalendarView">
+    <UserControl.Resources>
+        <conv:ImpactToColorConverter x:Key="ImpactToColorConverter" />
+    </UserControl.Resources>
+
+    <DockPanel Background="#252526">
+        <Border DockPanel.Dock="Top" Background="#2D2D30" Padding="6,4">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Economic Calendar" FontWeight="Bold" Foreground="#C0C0C0" FontSize="12" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="Filter:" Foreground="#808080" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox ItemsSource="{Binding ImpactFilters}" SelectedItem="{Binding SelectedImpactFilter}" Width="100" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <DataGrid ItemsSource="{Binding FilteredEvents}"
+                  Background="#252526" Foreground="#C0C0C0"
+                  GridLinesVisibility="None" HeadersVisibility="Column"
+                  IsReadOnly="True" FontSize="11" BorderThickness="0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Time" Binding="{Binding Time, StringFormat=\{0:yyyy.MM.dd HH:mm\}}" Width="120" />
+                <DataGridTextColumn Header="Currency" Binding="{Binding Currency}" Width="70" />
+                <DataGridTextColumn Header="Impact" Binding="{Binding Impact}" Width="70" />
+                <DataGridTextColumn Header="Event" Binding="{Binding EventName}" Width="*" />
+                <DataGridTextColumn Header="Actual" Binding="{Binding Actual}" Width="80" />
+                <DataGridTextColumn Header="Forecast" Binding="{Binding Forecast}" Width="80" />
+                <DataGridTextColumn Header="Previous" Binding="{Binding Previous}" Width="80" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

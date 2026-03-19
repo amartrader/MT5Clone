@@ -1,0 +1,9 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MT5Clone.App.App"
+             RequestedThemeVariant="Dark">
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://MT5Clone.App/Themes/DarkTheme.axaml" />
+    </Application.Styles>
+</Application>

@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "MT5Clone.MarketData/1.0.0": {
+        "dependencies": {
+          "MT5Clone.Core": "1.0.0"
+        },
+        "runtime": {
+          "MT5Clone.MarketData.dll": {}
+        }
+      },
+      "MT5Clone.Core/1.0.0": {
+        "runtime": {
+          "MT5Clone.Core.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MT5Clone.MarketData/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MT5Clone.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

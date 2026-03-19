@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MT5Clone.App.Views.MarketWatchView">
+    <DockPanel Background="#252526">
+        <!-- Header -->
+        <Border DockPanel.Dock="Top" Background="#2D2D30" Padding="6,4">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Market Watch" FontWeight="Bold" Foreground="#C0C0C0" FontSize="12" />
+                <TextBox Grid.Column="1" Width="100" Watermark="Search..."
+                         Text="{Binding FilterText, Mode=TwoWay}"
+                         Background="#3C3C3C" Foreground="#C0C0C0" FontSize="10" />
+            </Grid>
+        </Border>
+
+        <!-- Symbol List -->
+        <DataGrid ItemsSource="{Binding FilteredSymbols}"
+                  SelectedItem="{Binding SelectedSymbol}"
+                  Background="#252526" Foreground="#C0C0C0"
+                  GridLinesVisibility="None"
+                  HeadersVisibility="Column"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  FontSize="11"
+                  BorderThickness="0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="80" />
+                <DataGridTextColumn Header="Bid" Binding="{Binding Bid, StringFormat=\{0:F5\}}" Width="75" />
+                <DataGridTextColumn Header="Ask" Binding="{Binding Ask, StringFormat=\{0:F5\}}" Width="75" />
+                <DataGridTextColumn Header="Spread" Binding="{Binding Spread, StringFormat=\{0:F1\}}" Width="55" />
+                <DataGridTextColumn Header="High" Binding="{Binding High, StringFormat=\{0:F5\}}" Width="75" />
+                <DataGridTextColumn Header="Low" Binding="{Binding Low, StringFormat=\{0:F5\}}" Width="75" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

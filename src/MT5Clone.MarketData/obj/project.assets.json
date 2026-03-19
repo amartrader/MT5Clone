@@ -1,0 +1,94 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {
+      "MT5Clone.Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/MT5Clone.Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/MT5Clone.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MT5Clone.Core/1.0.0": {
+      "type": "project",
+      "path": "../MT5Clone.Core/MT5Clone.Core.csproj",
+      "msbuildProject": "../MT5Clone.Core/MT5Clone.Core.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "MT5Clone.Core >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/home/ubuntu/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/home/ubuntu/repos/MT5Clone/src/MT5Clone.MarketData/MT5Clone.MarketData.csproj",
+      "projectName": "MT5Clone.MarketData",
+      "projectPath": "/home/ubuntu/repos/MT5Clone/src/MT5Clone.MarketData/MT5Clone.MarketData.csproj",
+      "packagesPath": "/home/ubuntu/.nuget/packages/",
+      "outputPath": "/home/ubuntu/repos/MT5Clone/src/MT5Clone.MarketData/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/home/ubuntu/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {
+            "/home/ubuntu/repos/MT5Clone/src/MT5Clone.Core/MT5Clone.Core.csproj": {
+              "projectPath": "/home/ubuntu/repos/MT5Clone/src/MT5Clone.Core/MT5Clone.Core.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      }
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/home/ubuntu/.dotnet/sdk/8.0.419/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

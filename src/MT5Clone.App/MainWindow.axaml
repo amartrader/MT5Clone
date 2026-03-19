@@ -1,0 +1,154 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:MT5Clone.App.ViewModels"
+        xmlns:views="clr-namespace:MT5Clone.App.Views"
+        x:Class="MT5Clone.App.MainWindow"
+        Title="{Binding Title}"
+        Height="900" Width="1400"
+        MinHeight="600" MinWidth="800"
+        WindowState="Maximized"
+        Background="#1E1E1E">
+
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <DockPanel>
+        <!-- Menu Bar -->
+        <Menu DockPanel.Dock="Top" Background="#2D2D30">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New Chart" Command="{Binding NewChartCommand}" />
+                <Separator />
+                <MenuItem Header="E_xit" Command="{Binding ExitCommand}" />
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Market Watch" Command="{Binding ToggleMarketWatchCommand}" />
+                <MenuItem Header="_Navigator" Command="{Binding ToggleNavigatorCommand}" />
+                <MenuItem Header="_Terminal" Command="{Binding ToggleTerminalCommand}" />
+                <MenuItem Header="Too_lbox" Command="{Binding ToggleToolboxCommand}" />
+            </MenuItem>
+            <MenuItem Header="_Insert">
+                <MenuItem Header="_Indicators">
+                    <MenuItem Header="_Trend">
+                        <MenuItem Header="Moving Average" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="MA" />
+                        <MenuItem Header="Bollinger Bands" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="BB" />
+                        <MenuItem Header="Ichimoku Kinko Hyo" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="Ichimoku" />
+                        <MenuItem Header="Parabolic SAR" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="SAR" />
+                        <MenuItem Header="Average Directional Index" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="ADX" />
+                    </MenuItem>
+                    <MenuItem Header="_Oscillators">
+                        <MenuItem Header="RSI" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="RSI" />
+                        <MenuItem Header="MACD" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="MACD" />
+                        <MenuItem Header="Stochastic" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="Stochastic" />
+                        <MenuItem Header="CCI" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="CCI" />
+                        <MenuItem Header="Williams %R" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="WPR" />
+                        <MenuItem Header="Momentum" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="Momentum" />
+                    </MenuItem>
+                    <MenuItem Header="_Volumes">
+                        <MenuItem Header="OBV" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="OBV" />
+                        <MenuItem Header="MFI" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="MFI" />
+                        <MenuItem Header="Volumes" Command="{Binding Chart.AddIndicatorCommand}" CommandParameter="Volumes" />
+                    </MenuItem>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Charts">
+                <MenuItem Header="_Bar Chart" Command="{Binding ChartTypeBarsCommand}" />
+                <MenuItem Header="_Candlesticks" Command="{Binding ChartTypeCandlesCommand}" />
+                <MenuItem Header="_Line Chart" Command="{Binding ChartTypeLineCommand}" />
+                <Separator />
+                <MenuItem Header="Zoom _In" Command="{Binding ZoomInCommand}" />
+                <MenuItem Header="Zoom _Out" Command="{Binding ZoomOutCommand}" />
+                <Separator />
+                <MenuItem Header="Timeframes">
+                    <MenuItem Header="M1" Command="{Binding TimeFrameM1Command}" />
+                    <MenuItem Header="M5" Command="{Binding TimeFrameM5Command}" />
+                    <MenuItem Header="M15" Command="{Binding TimeFrameM15Command}" />
+                    <MenuItem Header="M30" Command="{Binding TimeFrameM30Command}" />
+                    <MenuItem Header="H1" Command="{Binding TimeFrameH1Command}" />
+                    <MenuItem Header="H4" Command="{Binding TimeFrameH4Command}" />
+                    <MenuItem Header="D1" Command="{Binding TimeFrameD1Command}" />
+                    <MenuItem Header="W1" Command="{Binding TimeFrameW1Command}" />
+                    <MenuItem Header="MN" Command="{Binding TimeFrameMN1Command}" />
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="New _Order" Command="{Binding NewOrderCommand}" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" />
+            </MenuItem>
+        </Menu>
+
+        <!-- Toolbar -->
+        <Border DockPanel.Dock="Top" Background="#333337" Padding="2">
+            <WrapPanel>
+                <Button Classes="toolbar" Content="New" Command="{Binding NewChartCommand}" ToolTip.Tip="New Chart" />
+                <Border Width="1" Background="#3F3F46" Margin="2,2" />
+                <Button Classes="toolbar" Content="MW" Command="{Binding ToggleMarketWatchCommand}" ToolTip.Tip="Market Watch" />
+                <Button Classes="toolbar" Content="Nav" Command="{Binding ToggleNavigatorCommand}" ToolTip.Tip="Navigator" />
+                <Button Classes="toolbar" Content="Term" Command="{Binding ToggleTerminalCommand}" ToolTip.Tip="Terminal" />
+                <Border Width="1" Background="#3F3F46" Margin="2,2" />
+                <Button Classes="toolbar" Content="Order" Command="{Binding NewOrderCommand}" ToolTip.Tip="New Order (F9)" FontWeight="Bold" />
+                <Border Width="1" Background="#3F3F46" Margin="4,2" />
+                <Button Classes="toolbar" Content="Bar" Command="{Binding ChartTypeBarsCommand}" ToolTip.Tip="Bar Chart" />
+                <Button Classes="toolbar" Content="Cndl" Command="{Binding ChartTypeCandlesCommand}" ToolTip.Tip="Candlestick" />
+                <Button Classes="toolbar" Content="Line" Command="{Binding ChartTypeLineCommand}" ToolTip.Tip="Line Chart" />
+                <Border Width="1" Background="#3F3F46" Margin="2,2" />
+                <Button Classes="toolbar" Content="+" Command="{Binding ZoomInCommand}" ToolTip.Tip="Zoom In" />
+                <Button Classes="toolbar" Content="-" Command="{Binding ZoomOutCommand}" ToolTip.Tip="Zoom Out" />
+                <Border Width="1" Background="#3F3F46" Margin="2,2" />
+                <Button Classes="toolbar" Content="M1" Command="{Binding TimeFrameM1Command}" />
+                <Button Classes="toolbar" Content="M5" Command="{Binding TimeFrameM5Command}" />
+                <Button Classes="toolbar" Content="M15" Command="{Binding TimeFrameM15Command}" />
+                <Button Classes="toolbar" Content="M30" Command="{Binding TimeFrameM30Command}" />
+                <Button Classes="toolbar" Content="H1" Command="{Binding TimeFrameH1Command}" FontWeight="Bold" />
+                <Button Classes="toolbar" Content="H4" Command="{Binding TimeFrameH4Command}" />
+                <Button Classes="toolbar" Content="D1" Command="{Binding TimeFrameD1Command}" />
+                <Button Classes="toolbar" Content="W1" Command="{Binding TimeFrameW1Command}" />
+                <Button Classes="toolbar" Content="MN" Command="{Binding TimeFrameMN1Command}" />
+            </WrapPanel>
+        </Border>
+
+        <!-- OHLC Data Bar -->
+        <Border DockPanel.Dock="Top" Background="#252526" Padding="4,2">
+            <TextBlock Text="{Binding Chart.OHLCText}" Foreground="#C0C0C0" FontSize="11" FontFamily="Consolas" />
+        </Border>
+
+        <!-- Status Bar -->
+        <Border DockPanel.Dock="Bottom" Background="#007ACC" Padding="4,2">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding ConnectionStatus}" Foreground="White" FontSize="11" />
+                <TextBlock Grid.Column="1" Text="{Binding StatusText}" Foreground="White" FontSize="11" Margin="20,0,0,0" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="Balance: " Foreground="White" FontSize="11" />
+                    <TextBlock Text="{Binding Terminal.Balance, StringFormat=\{0:F2\}}" Foreground="White" FontWeight="Bold" FontSize="11" />
+                    <TextBlock Text="  Equity: " Foreground="White" FontSize="11" Margin="10,0,0,0" />
+                    <TextBlock Text="{Binding Terminal.Equity, StringFormat=\{0:F2\}}" Foreground="White" FontWeight="Bold" FontSize="11" />
+                    <TextBlock Text="  Free: " Foreground="White" FontSize="11" Margin="10,0,0,0" />
+                    <TextBlock Text="{Binding Terminal.FreeMargin, StringFormat=\{0:F2\}}" Foreground="White" FontSize="11" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid ColumnDefinitions="250,4,*">
+            <!-- Left Panel: Market Watch + Navigator -->
+            <Grid Grid.Column="0" RowDefinitions="*,4,Auto" IsVisible="{Binding MarketWatch.IsVisible}">
+                <views:MarketWatchView Grid.Row="0" DataContext="{Binding MarketWatch}" />
+                <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="#3F3F46" />
+                <views:NavigatorView Grid.Row="2" Height="280" DataContext="{Binding Navigator}"
+                                     IsVisible="{Binding IsVisible}" />
+            </Grid>
+
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="#3F3F46" />
+
+            <!-- Right: Chart + Terminal -->
+            <Grid Grid.Column="2" RowDefinitions="*,4,250">
+                <views:ChartView Grid.Row="0" DataContext="{Binding Chart}" />
+                <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="#3F3F46" />
+                <views:TerminalView Grid.Row="2" DataContext="{Binding Terminal}"
+                                    IsVisible="{Binding IsVisible}" />
+            </Grid>
+        </Grid>
+    </DockPanel>
+</Window>

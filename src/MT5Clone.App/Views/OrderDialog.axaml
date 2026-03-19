@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MT5Clone.App.Views.OrderDialog">
+    <Border Background="#2D2D30" BorderBrush="#3F3F46" BorderThickness="1" Padding="16" CornerRadius="4">
+        <StackPanel Width="380">
+            <TextBlock Text="New Order" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,12" />
+
+            <!-- Symbol -->
+            <TextBlock Text="Symbol" Foreground="#808080" FontSize="11" Margin="0,0,0,3" />
+            <ComboBox ItemsSource="{Binding AvailableSymbols}" SelectedItem="{Binding SelectedSymbol}"
+                      HorizontalAlignment="Stretch" Margin="0,0,0,8" />
+
+            <!-- Order Type -->
+            <TextBlock Text="Type" Foreground="#808080" FontSize="11" Margin="0,0,0,3" />
+            <ComboBox ItemsSource="{Binding OrderTypes}" SelectedItem="{Binding SelectedOrderType}"
+                      HorizontalAlignment="Stretch" Margin="0,0,0,8" />
+
+            <!-- Volume -->
+            <TextBlock Text="Volume (Lots)" Foreground="#808080" FontSize="11" Margin="0,0,0,3" />
+            <NumericUpDown Value="{Binding Volume}" Minimum="0.01" Maximum="100" Increment="0.01"
+                           FormatString="F2" HorizontalAlignment="Stretch" Margin="0,0,0,8" />
+
+            <!-- Price (for pending orders) -->
+            <TextBlock Text="Price" Foreground="#808080" FontSize="11" Margin="0,0,0,3"
+                       IsVisible="{Binding IsPendingOrder}" />
+            <NumericUpDown Value="{Binding Price}" Increment="0.00001"
+                           FormatString="F5" HorizontalAlignment="Stretch" Margin="0,0,0,8"
+                           IsVisible="{Binding IsPendingOrder}" />
+
+            <!-- Stop Loss -->
+            <TextBlock Text="Stop Loss" Foreground="#808080" FontSize="11" Margin="0,0,0,3" />
+            <NumericUpDown Value="{Binding StopLoss}" Minimum="0" Increment="0.00001"
+                           FormatString="F5" HorizontalAlignment="Stretch" Margin="0,0,0,8" />
+
+            <!-- Take Profit -->
+            <TextBlock Text="Take Profit" Foreground="#808080" FontSize="11" Margin="0,0,0,3" />
+            <NumericUpDown Value="{Binding TakeProfit}" Minimum="0" Increment="0.00001"
+                           FormatString="F5" HorizontalAlignment="Stretch" Margin="0,0,0,8" />
+
+            <!-- Comment -->
+            <TextBlock Text="Comment" Foreground="#808080" FontSize="11" Margin="0,0,0,3" />
+            <TextBox Text="{Binding Comment}" HorizontalAlignment="Stretch" Margin="0,0,0,12" />
+
+            <!-- Bid/Ask Display -->
+            <Grid ColumnDefinitions="*,*" Margin="0,0,0,12">
+                <Border Grid.Column="0" Background="#1A1A2E" Padding="8,6" CornerRadius="3" Margin="0,0,4,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="BID" Foreground="#808080" FontSize="10" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding CurrentBid, StringFormat=\{0:F5\}}" Foreground="#FF4444" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" FontFamily="Consolas" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Background="#1A1A2E" Padding="8,6" CornerRadius="3" Margin="4,0,0,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="ASK" Foreground="#808080" FontSize="10" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding CurrentAsk, StringFormat=\{0:F5\}}" Foreground="#4488FF" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" FontFamily="Consolas" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Action Buttons -->
+            <Grid ColumnDefinitions="*,*,*">
+                <Button Grid.Column="0" Classes="sell" Content="Sell" Command="{Binding SellCommand}" HorizontalAlignment="Stretch" Margin="0,0,4,0" HorizontalContentAlignment="Center" />
+                <Button Grid.Column="1" Classes="buy" Content="Buy" Command="{Binding BuyCommand}" HorizontalAlignment="Stretch" Margin="4,0,4,0" HorizontalContentAlignment="Center" />
+                <Button Grid.Column="2" Content="Close" Command="{Binding CloseCommand}" HorizontalAlignment="Stretch" Margin="4,0,0,0" HorizontalContentAlignment="Center" />
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

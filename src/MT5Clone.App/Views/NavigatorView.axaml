@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MT5Clone.App.Views.NavigatorView">
+    <DockPanel Background="#252526">
+        <Border DockPanel.Dock="Top" Background="#2D2D30" Padding="6,4">
+            <TextBlock Text="Navigator" FontWeight="Bold" Foreground="#C0C0C0" FontSize="12" />
+        </Border>
+
+        <TreeView Background="#252526" BorderThickness="0"
+                  ItemsSource="{Binding RootNodes}">
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Children}">
+                    <StackPanel Orientation="Horizontal" Margin="2">
+                        <TextBlock Text="{Binding Icon}" FontSize="12" Margin="0,0,6,0" />
+                        <TextBlock Text="{Binding Name}" Foreground="#C0C0C0" FontSize="11" />
+                    </StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </DockPanel>
+</UserControl>

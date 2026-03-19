@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MT5Clone.Strategy</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MT5Clone.Core\MT5Clone.Core.csproj" />
+    <ProjectReference Include="..\MT5Clone.Trading\MT5Clone.Trading.csproj" />
+    <ProjectReference Include="..\MT5Clone.Indicators\MT5Clone.Indicators.csproj" />
+    <ProjectReference Include="..\MT5Clone.MarketData\MT5Clone.MarketData.csproj" />
+  </ItemGroup>
+</Project>

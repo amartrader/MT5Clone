@@ -1,0 +1,132 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:MT5Clone.App.Converters"
+             x:Class="MT5Clone.App.Views.TerminalView">
+    <UserControl.Resources>
+        <conv:ProfitColorConverter x:Key="ProfitColorConverter" />
+    </UserControl.Resources>
+
+    <DockPanel Background="#252526">
+        <TabControl Background="#252526">
+            <!-- Trade Tab -->
+            <TabItem Header="Trade">
+                <DockPanel>
+                    <Border DockPanel.Dock="Bottom" Background="#2D2D30" Padding="6,3">
+                        <Grid ColumnDefinitions="*,*,*,*">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <TextBlock Text="Balance: " Foreground="#808080" FontSize="11" />
+                                <TextBlock Text="{Binding Balance, StringFormat=\{0:F2\}}" Foreground="White" FontWeight="Bold" FontSize="11" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="Equity: " Foreground="#808080" FontSize="11" />
+                                <TextBlock Text="{Binding Equity, StringFormat=\{0:F2\}}" Foreground="White" FontWeight="Bold" FontSize="11" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                <TextBlock Text="Margin: " Foreground="#808080" FontSize="11" />
+                                <TextBlock Text="{Binding Margin, StringFormat=\{0:F2\}}" Foreground="#C0C0C0" FontSize="11" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Orientation="Horizontal">
+                                <TextBlock Text="Free: " Foreground="#808080" FontSize="11" />
+                                <TextBlock Text="{Binding FreeMargin, StringFormat=\{0:F2\}}" Foreground="#C0C0C0" FontSize="11" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <DataGrid ItemsSource="{Binding OpenPositions}"
+                              Background="#252526" Foreground="#C0C0C0"
+                              GridLinesVisibility="None" HeadersVisibility="Column"
+                              IsReadOnly="True" SelectionMode="Single"
+                              FontSize="11" BorderThickness="0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="80" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="50" />
+                            <DataGridTextColumn Header="Volume" Binding="{Binding Volume, StringFormat=\{0:F2\}}" Width="60" />
+                            <DataGridTextColumn Header="Open Price" Binding="{Binding OpenPrice, StringFormat=\{0:F5\}}" Width="85" />
+                            <DataGridTextColumn Header="Current" Binding="{Binding CurrentPrice, StringFormat=\{0:F5\}}" Width="85" />
+                            <DataGridTextColumn Header="S/L" Binding="{Binding StopLoss, StringFormat=\{0:F5\}}" Width="85" />
+                            <DataGridTextColumn Header="T/P" Binding="{Binding TakeProfit, StringFormat=\{0:F5\}}" Width="85" />
+                            <DataGridTextColumn Header="Profit" Binding="{Binding Profit, StringFormat=\{0:F2\}}" Width="80" />
+                            <DataGridTextColumn Header="Swap" Binding="{Binding Swap, StringFormat=\{0:F2\}}" Width="60" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+            <!-- Exposure Tab -->
+            <TabItem Header="Exposure">
+                <DataGrid ItemsSource="{Binding ExposureData}"
+                          Background="#252526" Foreground="#C0C0C0"
+                          GridLinesVisibility="None" HeadersVisibility="Column"
+                          IsReadOnly="True" FontSize="11" BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Asset" Binding="{Binding Asset}" Width="100" />
+                        <DataGridTextColumn Header="Volume" Binding="{Binding Volume, StringFormat=\{0:F2\}}" Width="100" />
+                        <DataGridTextColumn Header="Rate" Binding="{Binding Rate, StringFormat=\{0:F5\}}" Width="100" />
+                        <DataGridTextColumn Header="USD" Binding="{Binding ValueUSD, StringFormat=\{0:F2\}}" Width="100" />
+                        <DataGridTextColumn Header="Graph" Binding="{Binding Percentage, StringFormat=\{0:F1\}%}" Width="80" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- History Tab -->
+            <TabItem Header="History">
+                <DataGrid ItemsSource="{Binding TradeHistory}"
+                          Background="#252526" Foreground="#C0C0C0"
+                          GridLinesVisibility="None" HeadersVisibility="Column"
+                          IsReadOnly="True" FontSize="11" BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Time" Binding="{Binding Time, StringFormat=\{0:yyyy.MM.dd HH:mm\}}" Width="120" />
+                        <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="80" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="50" />
+                        <DataGridTextColumn Header="Volume" Binding="{Binding Volume, StringFormat=\{0:F2\}}" Width="60" />
+                        <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat=\{0:F5\}}" Width="85" />
+                        <DataGridTextColumn Header="Profit" Binding="{Binding Profit, StringFormat=\{0:F2\}}" Width="80" />
+                        <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Alerts Tab -->
+            <TabItem Header="Alerts">
+                <DataGrid ItemsSource="{Binding Alerts}"
+                          Background="#252526" Foreground="#C0C0C0"
+                          GridLinesVisibility="None" HeadersVisibility="Column"
+                          IsReadOnly="True" FontSize="11" BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Time" Binding="{Binding Time, StringFormat=\{0:HH:mm:ss\}}" Width="80" />
+                        <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}" Width="80" />
+                        <DataGridTextColumn Header="Condition" Binding="{Binding Condition}" Width="150" />
+                        <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="100" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Journal Tab -->
+            <TabItem Header="Journal">
+                <DataGrid ItemsSource="{Binding JournalEntries}"
+                          Background="#252526" Foreground="#C0C0C0"
+                          GridLinesVisibility="None" HeadersVisibility="Column"
+                          IsReadOnly="True" FontSize="11" BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Time" Binding="{Binding Time, StringFormat=\{0:yyyy.MM.dd HH:mm:ss\}}" Width="140" />
+                        <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="100" />
+                        <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <!-- Mailbox Tab -->
+            <TabItem Header="Mailbox">
+                <TextBlock Text="No messages" Foreground="#808080" FontSize="12"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </TabItem>
+
+            <!-- Market Tab -->
+            <TabItem Header="Market">
+                <TextBlock Text="MQL5 Market - Expert Advisors, Indicators, Scripts"
+                           Foreground="#808080" FontSize="12"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</UserControl>

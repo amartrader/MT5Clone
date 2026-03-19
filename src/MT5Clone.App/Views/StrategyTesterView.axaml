@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MT5Clone.App.Views.StrategyTesterView">
+    <DockPanel Background="#252526">
+        <Border DockPanel.Dock="Top" Background="#2D2D30" Padding="6,4">
+            <TextBlock Text="Strategy Tester" FontWeight="Bold" Foreground="#C0C0C0" FontSize="12" />
+        </Border>
+
+        <!-- Settings Panel -->
+        <Border DockPanel.Dock="Top" Background="#2D2D30" Padding="8,6" Margin="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto,*,Auto,*,Auto,Auto" RowDefinitions="Auto,Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Expert:" Foreground="#808080" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,4" />
+                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding AvailableStrategies}" SelectedItem="{Binding SelectedStrategy}" HorizontalAlignment="Stretch" Margin="0,0,12,4" />
+
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Symbol:" Foreground="#808080" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,4" />
+                <ComboBox Grid.Row="0" Grid.Column="3" ItemsSource="{Binding AvailableSymbols}" SelectedItem="{Binding SelectedSymbol}" HorizontalAlignment="Stretch" Margin="0,0,12,4" />
+
+                <TextBlock Grid.Row="0" Grid.Column="4" Text="Period:" Foreground="#808080" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,4" />
+                <ComboBox Grid.Row="0" Grid.Column="5" ItemsSource="{Binding AvailableTimeFrames}" SelectedItem="{Binding SelectedTimeFrame}" HorizontalAlignment="Stretch" Margin="0,0,12,4" />
+
+                <Button Grid.Row="0" Grid.Column="6" Content="Start" Command="{Binding StartTestCommand}" Classes="buy" Margin="0,0,4,4" />
+                <Button Grid.Row="0" Grid.Column="7" Content="Stop" Command="{Binding StopTestCommand}" Margin="0,0,0,4" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="From:" Foreground="#808080" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <DatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding FromDate}" HorizontalAlignment="Stretch" Margin="0,0,12,0" />
+
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="To:" Foreground="#808080" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <DatePicker Grid.Row="1" Grid.Column="3" SelectedDate="{Binding ToDate}" HorizontalAlignment="Stretch" Margin="0,0,12,0" />
+
+                <TextBlock Grid.Row="1" Grid.Column="4" Text="Deposit:" Foreground="#808080" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <NumericUpDown Grid.Row="1" Grid.Column="5" Value="{Binding InitialDeposit}" Minimum="100" Maximum="10000000" Increment="1000" FormatString="F0" HorizontalAlignment="Stretch" Margin="0,0,12,0" />
+
+                <ProgressBar Grid.Row="1" Grid.Column="6" Grid.ColumnSpan="2" Value="{Binding Progress}" Minimum="0" Maximum="100" Height="18" IsVisible="{Binding IsRunning}" />
+            </Grid>
+        </Border>
+
+        <!-- Results Tabs -->
+        <TabControl Background="#252526">
+            <TabItem Header="Results">
+                <DataGrid ItemsSource="{Binding Results}"
+                          Background="#252526" Foreground="#C0C0C0"
+                          GridLinesVisibility="None" HeadersVisibility="Column"
+                          IsReadOnly="True" FontSize="11" BorderThickness="0"
+                          FontFamily="Consolas">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#" Binding="{Binding Number}" Width="40" />
+                        <DataGridTextColumn Header="Time" Binding="{Binding Time, StringFormat=\{0:yyyy.MM.dd HH:mm\}}" Width="120" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="50" />
+                        <DataGridTextColumn Header="Volume" Binding="{Binding Volume, StringFormat=\{0:F2\}}" Width="60" />
+                        <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat=\{0:F5\}}" Width="85" />
+                        <DataGridTextColumn Header="S/L" Binding="{Binding StopLoss, StringFormat=\{0:F5\}}" Width="85" />
+                        <DataGridTextColumn Header="T/P" Binding="{Binding TakeProfit, StringFormat=\{0:F5\}}" Width="85" />
+                        <DataGridTextColumn Header="Profit" Binding="{Binding Profit, StringFormat=\{0:F2\}}" Width="80" />
+                        <DataGridTextColumn Header="Balance" Binding="{Binding Balance, StringFormat=\{0:F2\}}" Width="100" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <TabItem Header="Graph">
+                <Border Background="#1A1A2E" Margin="4">
+                    <TextBlock Text="Equity Curve Graph" Foreground="#808080" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+            </TabItem>
+
+            <TabItem Header="Report">
+                <ScrollViewer>
+                    <StackPanel Margin="12" IsVisible="{Binding HasResults}">
+                        <TextBlock Text="Strategy Tester Report" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,12" />
+                        <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Total Net Profit:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalProfit, StringFormat=\{0:F2\}}" Foreground="#C0C0C0" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Total Trades:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TotalTrades}" Foreground="#C0C0C0" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Profit Factor:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ProfitFactor, StringFormat=\{0:F2\}}" Foreground="#C0C0C0" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Max Drawdown:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding MaxDrawdown, StringFormat=\{0:F2\}}" Foreground="#FF4444" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Winning Trades:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding WinningTrades}" Foreground="#00FF00" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Losing Trades:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding LosingTrades}" Foreground="#FF4444" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="Win Rate:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding WinRate, StringFormat=\{0:F1\}%}" Foreground="#C0C0C0" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="7" Grid.Column="0" Text="Average Win:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding AverageWin, StringFormat=\{0:F2\}}" Foreground="#00FF00" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="8" Grid.Column="0" Text="Average Loss:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding AverageLoss, StringFormat=\{0:F2\}}" Foreground="#FF4444" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="9" Grid.Column="0" Text="Sharpe Ratio:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding SharpeRatio, StringFormat=\{0:F2\}}" Foreground="#C0C0C0" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="10" Grid.Column="0" Text="Recovery Factor:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding RecoveryFactor, StringFormat=\{0:F2\}}" Foreground="#C0C0C0" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="11" Grid.Column="0" Text="Expected Payoff:" Foreground="#808080" FontSize="11" Margin="0,2" />
+                            <TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding ExpectedPayoff, StringFormat=\{0:F2\}}" Foreground="#C0C0C0" FontSize="11" Margin="0,2" />
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Journal">
+                <DataGrid ItemsSource="{Binding JournalEntries}"
+                          Background="#252526" Foreground="#C0C0C0"
+                          GridLinesVisibility="None" HeadersVisibility="Column"
+                          IsReadOnly="True" FontSize="11" BorderThickness="0"
+                          FontFamily="Consolas">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Time" Binding="{Binding Time, StringFormat=\{0:yyyy.MM.dd HH:mm:ss\}}" Width="140" />
+                        <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</UserControl>

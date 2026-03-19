@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MT5Clone.App</RootNamespace>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.1" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.1" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.2.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MT5Clone.Core\MT5Clone.Core.csproj" />
+    <ProjectReference Include="..\MT5Clone.MarketData\MT5Clone.MarketData.csproj" />
+    <ProjectReference Include="..\MT5Clone.Trading\MT5Clone.Trading.csproj" />
+    <ProjectReference Include="..\MT5Clone.Indicators\MT5Clone.Indicators.csproj" />
+    <ProjectReference Include="..\MT5Clone.Charting\MT5Clone.Charting.csproj" />
+    <ProjectReference Include="..\MT5Clone.Strategy\MT5Clone.Strategy.csproj" />
+  </ItemGroup>
+</Project>

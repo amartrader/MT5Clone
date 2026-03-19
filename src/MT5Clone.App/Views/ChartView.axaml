@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MT5Clone.App.ViewModels"
+             x:Class="MT5Clone.App.Views.ChartView">
+    <Grid Background="#1E1E1E">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Chart Header -->
+        <Border Grid.Row="0" Background="#2D2D30" Padding="6,3">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding SelectedSymbol}" FontWeight="Bold" Foreground="White" FontSize="13" />
+                    <TextBlock Text="{Binding SelectedTimeFrame}" Foreground="#808080" FontSize="11" Margin="10,0,0,0" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding ChartTypeDisplay}" Foreground="#808080" FontSize="11" Margin="10,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="O:" Foreground="#808080" FontSize="11" />
+                    <TextBlock Text="{Binding CurrentOpen, StringFormat=\{0:F5\}}" Foreground="#C0C0C0" FontSize="11" Margin="2,0,8,0" />
+                    <TextBlock Text="H:" Foreground="#808080" FontSize="11" />
+                    <TextBlock Text="{Binding CurrentHigh, StringFormat=\{0:F5\}}" Foreground="#00FF00" FontSize="11" Margin="2,0,8,0" />
+                    <TextBlock Text="L:" Foreground="#808080" FontSize="11" />
+                    <TextBlock Text="{Binding CurrentLow, StringFormat=\{0:F5\}}" Foreground="#FF0000" FontSize="11" Margin="2,0,8,0" />
+                    <TextBlock Text="C:" Foreground="#808080" FontSize="11" />
+                    <TextBlock Text="{Binding CurrentClose, StringFormat=\{0:F5\}}" Foreground="#C0C0C0" FontSize="11" Margin="2,0,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Chart Canvas Area -->
+        <Grid Grid.Row="1">
+            <Border Background="#1A1A2E" BorderBrush="#3F3F46" BorderThickness="1" Margin="2">
+                <!-- Price Scale on right -->
+                <Grid ColumnDefinitions="*,60">
+                    <!-- Main chart area -->
+                    <Canvas Grid.Column="0" Background="#1A1A2E" ClipToBounds="True">
+                        <!-- Chart content rendered programmatically -->
+                    </Canvas>
+
+                    <!-- Price scale -->
+                    <Border Grid.Column="1" Background="#252526" BorderBrush="#3F3F46" BorderThickness="1,0,0,0">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentHigh, StringFormat=\{0:F5\}}" Foreground="#00FF00" FontSize="10" HorizontalAlignment="Center" FontFamily="Consolas" />
+                            <TextBlock Text="{Binding CurrentClose, StringFormat=\{0:F5\}}" Foreground="White" FontSize="11" HorizontalAlignment="Center" FontWeight="Bold" FontFamily="Consolas" Margin="0,20" />
+                            <TextBlock Text="{Binding CurrentLow, StringFormat=\{0:F5\}}" Foreground="#FF0000" FontSize="10" HorizontalAlignment="Center" FontFamily="Consolas" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Crosshair info overlay -->
+            <Border Background="#80000000" HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="10" Padding="6,3" CornerRadius="3"
+                    IsVisible="{Binding ShowCrosshair}">
+                <TextBlock Text="{Binding CrosshairInfo}" Foreground="#C0C0C0" FontSize="10" FontFamily="Consolas" />
+            </Border>
+        </Grid>
+
+        <!-- Indicator List -->
+        <Border Grid.Row="2" Background="#252526" Padding="4,2"
+                IsVisible="{Binding HasIndicators}">
+            <ItemsControl ItemsSource="{Binding ActiveIndicators}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="0,1">
+                            <TextBlock Text="{Binding Name}" Foreground="#808080" FontSize="10" />
+                            <Button Content="x" Background="Transparent" Foreground="#FF4444"
+                                    BorderThickness="0" Padding="4,0" FontSize="9"
+                                    Command="{Binding $parent[UserControl].((vm:ChartViewModel)DataContext).RemoveIndicatorCommand}"
+                                    CommandParameter="{Binding}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+    </Grid>
+</UserControl>
