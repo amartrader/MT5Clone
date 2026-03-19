@@ -4,6 +4,6 @@
              RequestedThemeVariant="Dark">
     <Application.Styles>
         <FluentTheme />
-        <StyleInclude Source="avares://MT5Clone.App/Themes/DarkTheme.axaml" />
+        <StyleInclude Source="avares://MT5Clone/Themes/DarkTheme.axaml" />
     </Application.Styles>
 </Application>
