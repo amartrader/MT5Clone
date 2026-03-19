@@ -24,5 +24,6 @@
     <ProjectReference Include="..\MT5Clone.Indicators\MT5Clone.Indicators.csproj" />
     <ProjectReference Include="..\MT5Clone.Charting\MT5Clone.Charting.csproj" />
     <ProjectReference Include="..\MT5Clone.Strategy\MT5Clone.Strategy.csproj" />
+    <ProjectReference Include="..\MT5Clone.OpenAlgo\MT5Clone.OpenAlgo.csproj" />
   </ItemGroup>
 </Project>
