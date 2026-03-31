@@ -24,6 +24,9 @@ public class BacktestEngine : IStrategyTester
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var startTime = DateTime.UtcNow;
 
+        // Yield to allow UI to update before starting CPU-bound work
+        await Task.Yield();
+
         try
         {
             var account = new Account
@@ -109,7 +112,7 @@ public class BacktestEngine : IStrategyTester
                     }
                     else if (fastMA < slowMA && prevFastMA >= prevSlowMA && positions.Count > 0)
                     {
-                        foreach (var pos in positions)
+                        foreach (var pos in positions.ToList())
                             engine.ClosePosition(pos.Ticket);
                     }
                 }

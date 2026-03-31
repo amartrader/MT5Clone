@@ -378,8 +378,8 @@ public class TradingEngine : ITradingEngine
                 symbol.Ask = tick.Ask;
             }
 
-            // Update open positions
-            foreach (var position in _openPositions.Where(p => p.Symbol == tick.Symbol))
+            // Update open positions (snapshot to avoid collection modification during iteration)
+            foreach (var position in _openPositions.Where(p => p.Symbol == tick.Symbol).ToList())
             {
                 position.PriceCurrent = position.Type == PositionType.Buy ? tick.Bid : tick.Ask;
                 if (symbol != null)

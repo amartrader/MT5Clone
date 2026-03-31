@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -18,6 +18,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MT5Clone.OpenAlgo", "src\MT5Clone.OpenAlgo\MT5Clone.OpenAlgo.csproj", "{B8C9D0E1-F2A3-4567-BCDE-678901234567}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MT5Clone.App", "src\MT5Clone.App\MT5Clone.App.csproj", "{A7B8C9D0-E1F2-3456-ABCD-567890123456}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{32916911-010D-44B7-87EA-F585C870070C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MT5Clone.Tests", "tests\MT5Clone.Tests\MT5Clone.Tests.csproj", "{60C1041B-F2B3-4A56-9AFC-A390CB8AAD62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,5 +61,12 @@ Global
 		{B8C9D0E1-F2A3-4567-BCDE-678901234567}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8C9D0E1-F2A3-4567-BCDE-678901234567}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8C9D0E1-F2A3-4567-BCDE-678901234567}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60C1041B-F2B3-4A56-9AFC-A390CB8AAD62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60C1041B-F2B3-4A56-9AFC-A390CB8AAD62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60C1041B-F2B3-4A56-9AFC-A390CB8AAD62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60C1041B-F2B3-4A56-9AFC-A390CB8AAD62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{60C1041B-F2B3-4A56-9AFC-A390CB8AAD62} = {32916911-010D-44B7-87EA-F585C870070C}
 	EndGlobalSection
 EndGlobal
